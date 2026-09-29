@@ -697,25 +697,35 @@ class Field:
         self.tick_ms = (time.perf_counter() - t_start) * 1000.0
         return tasks
 
+    def _daily_all(self):
+        for w in self.wells:
+            self._daily_tasks(w)
+        self._recompute_schedule()
+        self._evaluate_recommendations()
+        self.withdraw_stale_recommendations()
+
     async def run(self, broadcast):
         loop = asyncio.get_running_loop()
         while True:
             t0 = loop.time()
             try:
                 if not self.paused and self.ready and self.has_viewers():
-                    tasks = self.tick()
+                    # on small hosts the step runs in a worker thread so the event loop keeps answering requests
+                    off = config.BACKGROUND_START
+                    tasks = await loop.run_in_executor(None, self.tick) if off else self.tick()
                     if "cards" in tasks and (self._card_task is None or self._card_task.done()):
                         self._card_task = asyncio.create_task(self._generate_cards_async())
                     if "daily" in tasks:
                         day = math.floor(self.sim_day)
-                        for i, w in enumerate(self.wells):
-                            self._daily_tasks(w)
-                            if (day + i) % int(config.CALIBRATE_EVERY_SIM_DAYS) == 0:
-                                asyncio.create_task(self._calibrate_async(w))
-                        self._recompute_schedule()
-                        self._evaluate_recommendations()
-                        self.withdraw_stale_recommendations()
-                    await broadcast(self.snapshot())
+                        due = [w for i, w in enumerate(self.wells) if (day + i) % int(config.CALIBRATE_EVERY_SIM_DAYS) == 0]
+                        if off:
+                            await loop.run_in_executor(None, self._daily_all)
+                        else:
+                            self._daily_all()
+                        for w in due:
+                            asyncio.create_task(self._calibrate_async(w))
+                    snap = await loop.run_in_executor(None, self.snapshot) if off else self.snapshot()
+                    await broadcast(snap)
             except Exception:
                 log.exception("tick failed")
             await asyncio.sleep(max(config.TICK_SECONDS - (loop.time() - t0), 0.05))

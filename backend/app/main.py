@@ -5,6 +5,7 @@ import asyncio
 import io
 import json
 import logging
+import time
 from contextlib import asynccontextmanager
 from dataclasses import replace
 
@@ -37,7 +38,10 @@ clients: set[WebSocket] = set()
 async def broadcast(msg: dict):
     if not clients:
         return
-    data = json.dumps(joint.sanitize(msg))
+    if config.BACKGROUND_START:
+        data = await asyncio.get_running_loop().run_in_executor(None, lambda: json.dumps(joint.sanitize(msg)))
+    else:
+        data = json.dumps(joint.sanitize(msg))
     dead = []
     for ws in list(clients):
         try:
@@ -119,8 +123,25 @@ def ok(obj):
 
 
 @app.get("/api/health")
-def api_health():
-    return dict(status="ok" if field and field.ready else "starting", sim_time=field.sim_iso() if field else None)
+async def api_health():  # async: answered on the event loop, never queued behind worker threads
+    return dict(status="ok" if field and field.ready else "starting", sim_time=field.sim_iso() if field else None,
+                process=_process_stats())
+
+
+_T_START = time.time()
+
+
+def _process_stats() -> dict:
+    """Uptime, CPU seconds and memory (Linux /proc) so a small host's headroom can be checked remotely."""
+    out = dict(uptime_s=round(time.time() - _T_START), cpu_s=round(time.process_time(), 1))
+    try:
+        with open("/proc/self/status") as fh:
+            for line in fh:
+                if line.startswith(("VmRSS:", "VmHWM:")):
+                    out[line.split(":")[0].lower() + "_mb"] = round(int(line.split()[1]) / 1024)
+    except OSError:
+        pass
+    return out
 
 
 @app.get("/api/config")
