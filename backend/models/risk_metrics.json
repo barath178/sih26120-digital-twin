@@ -1,0 +1,143 @@
+{
+  "model": "XGBoost classifier (multi:softprob, class-weighted)",
+  "classes": [
+    "NORMAL",
+    "LOW_FILLAGE",
+    "ROD_FLOAT_RISK",
+    "HIGH_IMPACT",
+    "PUMP_UNSETTING_RISK"
+  ],
+  "features": [
+    "fillage",
+    "runtime",
+    "spm",
+    "pprl_kn",
+    "mprl_kn",
+    "load_range_kn",
+    "load_ratio",
+    "mu_cp",
+    "t_avg",
+    "motor_kw",
+    "spm_over_rodfall"
+  ],
+  "classes_without_support": [],
+  "accuracy": 0.9928900041823505,
+  "precision": {
+    "NORMAL": 0.9987481221832749,
+    "LOW_FILLAGE": 0.8985714285714286,
+    "ROD_FLOAT_RISK": 0.9736147757255936,
+    "HIGH_IMPACT": 0.9982719516146452,
+    "PUMP_UNSETTING_RISK": 1.0
+  },
+  "recall": {
+    "NORMAL": 0.9979984988741556,
+    "LOW_FILLAGE": 0.9858934169278997,
+    "ROD_FLOAT_RISK": 0.9761904761904762,
+    "HIGH_IMPACT": 0.9922705314009662,
+    "PUMP_UNSETTING_RISK": 0.7777777777777778
+  },
+  "f1": {
+    "NORMAL": 0.9983731698160431,
+    "LOW_FILLAGE": 0.9402092675635276,
+    "ROD_FLOAT_RISK": 0.9749009247027741,
+    "HIGH_IMPACT": 0.9952621944653817,
+    "PUMP_UNSETTING_RISK": 0.8750000000000001
+  },
+  "support": {
+    "NORMAL": 3997,
+    "LOW_FILLAGE": 638,
+    "ROD_FLOAT_RISK": 378,
+    "HIGH_IMPACT": 9315,
+    "PUMP_UNSETTING_RISK": 18
+  },
+  "confusion": [
+    [
+      3989,
+      8,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      629,
+      0,
+      7,
+      0
+    ],
+    [
+      0,
+      0,
+      369,
+      9,
+      0
+    ],
+    [
+      0,
+      63,
+      9,
+      9243,
+      0
+    ],
+    [
+      3,
+      0,
+      1,
+      0,
+      14
+    ]
+  ],
+  "macro_f1": 0.9567491113095453,
+  "n_train": 64648,
+  "n_val": 13245,
+  "n_test": 14346,
+  "split": "grouped by simulated cycle (70/15/15)",
+  "data": "SYNTHETIC labels - not field accuracy",
+  "train_seconds": 24.6,
+  "train_percentiles": {
+    "fillage": [
+      0.0,
+      0.9090988984029534
+    ],
+    "runtime": [
+      0.05,
+      1.0
+    ],
+    "spm": [
+      2.0758779427950342,
+      8.686385253717223
+    ],
+    "pprl_kn": [
+      42.11034963956782,
+      81.59109048900314
+    ],
+    "mprl_kn": [
+      -7.747337897706948,
+      26.010660542416296
+    ],
+    "load_range_kn": [
+      24.651867279859925,
+      87.92685104140013
+    ],
+    "load_ratio": [
+      -0.10101938339067996,
+      0.4612413860714383
+    ],
+    "mu_cp": [
+      0.174159639294261,
+      1937.88366386155
+    ],
+    "t_avg": [
+      42.107445487747114,
+      266.01837887386
+    ],
+    "motor_kw": [
+      0.6045525969285017,
+      22.570040168265965
+    ],
+    "spm_over_rodfall": [
+      0.00019845188905922935,
+      1.09709616094675
+    ]
+  }
+}

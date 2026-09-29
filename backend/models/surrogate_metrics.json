@@ -1,0 +1,61 @@
+{
+  "model": "XGBoost (one regressor per output)",
+  "inputs": [
+    "steam_t",
+    "inj_rate_tpd",
+    "soak_days",
+    "prod_days",
+    "spm1",
+    "spm2",
+    "spm3",
+    "spm4",
+    "stroke_m",
+    "pump_offset_m",
+    "perm_eff_md",
+    "net_pay_m",
+    "depth_m",
+    "np_total_m3",
+    "u_mult",
+    "cool_mult"
+  ],
+  "outputs": [
+    "oil_per_day",
+    "sor",
+    "failure_prob",
+    "npv_per_day",
+    "avg_fillage",
+    "max_goodman",
+    "max_torque_nm",
+    "max_motor_kw",
+    "rodfall_ratio",
+    "energy_per_bbl_kwh"
+  ],
+  "r2": {
+    "oil_per_day": 0.9902473113214404,
+    "sor": 0.7379061648259563,
+    "failure_prob": 0.8081507891432098,
+    "npv_per_day": 0.9800378270163771,
+    "avg_fillage": 0.3942656307496213,
+    "max_goodman": 0.8019671579260648,
+    "max_torque_nm": 0.8737973857852737,
+    "max_motor_kw": 0.9658254792841628,
+    "rodfall_ratio": 0.6961317684844845,
+    "energy_per_bbl_kwh": 0.7383988633829115
+  },
+  "mae": {
+    "oil_per_day": 0.05932012357351645,
+    "sor": 83.32290082791755,
+    "failure_prob": 0.014763940564150589,
+    "npv_per_day": 2742.7126205436066,
+    "avg_fillage": 0.010778192322141673,
+    "max_goodman": 0.02091007581460661,
+    "max_torque_nm": 1057.4767080306053,
+    "max_motor_kw": 0.2509888946614502,
+    "rodfall_ratio": 0.015715487663817626,
+    "energy_per_bbl_kwh": 10469.491150238731
+  },
+  "n_train": 3200,
+  "n_test": 800,
+  "data_gen_seconds": 85.8,
+  "train_seconds": 9.3
+}

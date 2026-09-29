@@ -1,0 +1,23 @@
+{
+  "model": "Isolation Forest on twin residuals",
+  "features": [
+    "liquid_rate",
+    "pprl",
+    "mprl",
+    "motor_kw",
+    "wht",
+    "fillage"
+  ],
+  "n_train": 30000,
+  "threshold_raw": 0.5852202732311537,
+  "median_raw": 0.43150290886770426,
+  "feature_std": {
+    "liquid_rate": 0.05448507437015584,
+    "pprl": 0.01746927286693813,
+    "mprl": 0.007899745201944147,
+    "motor_kw": 0.059161199868314376,
+    "wht": 0.07574852925946594,
+    "fillage": 0.036035236205479645
+  },
+  "train_seconds": 12.6
+}

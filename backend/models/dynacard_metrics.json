@@ -1,0 +1,91 @@
+{
+  "model": "cnn",
+  "accuracy": 0.9918367346938776,
+  "per_class_recall": {
+    "normal": 0.9733333333333334,
+    "fluid_pound": 0.971830985915493,
+    "gas_interference": 1.0,
+    "tv_leak": 1.0,
+    "sv_leak": 1.0,
+    "rod_parted": 1.0,
+    "viscous_drag": 1.0
+  },
+  "confusion": [
+    [
+      73,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      2,
+      69,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      71,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      54,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      75,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      73,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      71
+    ]
+  ],
+  "classes": [
+    "normal",
+    "fluid_pound",
+    "gas_interference",
+    "tv_leak",
+    "sv_leak",
+    "rod_parted",
+    "viscous_drag"
+  ],
+  "n_train": 1960,
+  "n_test": 490,
+  "data_gen_seconds": 20.8,
+  "train_seconds": 55.8
+}

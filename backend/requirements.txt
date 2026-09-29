@@ -1,0 +1,16 @@
+numpy==2.5.3
+scipy==1.18.1
+pandas==3.0.6
+scikit-learn==1.9.1
+xgboost==3.4.1
+pymoo==0.6.2
+optuna==5.0.0
+joblib==1.6.0
+fastapi==0.141.1
+uvicorn[standard]==0.54.0
+pydantic==2.13.5
+python-multipart==0.0.32
+paho-mqtt==2.1.0
+# PyTorch (CPU build) for the dynacard CNN. Install with:
+#   pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu
+# Without it the twin falls back to an sklearn MLP classifier automatically.

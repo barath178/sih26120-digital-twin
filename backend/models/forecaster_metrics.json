@@ -1,0 +1,30 @@
+{
+  "model": "XGBoost quantile regression",
+  "quantiles": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "mape_p50": 0.03505371986444873,
+  "r2_log": 0.9902723053009042,
+  "p10_p90_coverage": 0.8338150589507393,
+  "n_train_rows": 190306,
+  "n_test_rows": 48091,
+  "n_cycles": 1200,
+  "features": [
+    "day",
+    "horizon",
+    "log_q3",
+    "log_q_prev",
+    "slope",
+    "log_qw3",
+    "wht3",
+    "spm3",
+    "log_cum",
+    "steam_t",
+    "soak_days",
+    "inj_rate",
+    "log_np_before"
+  ],
+  "train_seconds": 174.2
+}

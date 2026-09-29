@@ -1,0 +1,19 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./deploy/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+  twin:
+    build: .
+    depends_on:
+      - mosquitto
+    environment:
+      MQTT_HOST: mosquitto        # field telemetry flows through the broker (topics baghewala/<well>/telemetry|card)
+      MQTT_PORT: "1883"
+      SIM_HOURS_PER_TICK: "2"
+      TICK_SECONDS: "1"
+    ports:
+      - "8000:8000"

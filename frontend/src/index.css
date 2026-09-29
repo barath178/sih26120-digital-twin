@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------------------------------------
+   Design system: "control room".
+   Layout idea: a slim instrument rail, a status bar, and tonal (not bordered) surfaces; readouts in
+   mono like a SCADA panel; well-log tick rules mark sections.
+   Neutrals lean warm (bitumen graphite). The one brand hue is steam-heat orange, used for the primary
+   action, the active place and the key figure; chart series keep the separately validated palette.
+   ------------------------------------------------------------------------------------------------ */
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-cond: "IBM Plex Sans Condensed", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-bg: #14120f;
+  --color-surface: #1c1a17;
+  --color-surface-2: #24211d;
+  --color-surface-3: #2d2a25;
+  --color-line: #36322c;
+  --color-line-2: #48433b;
+  --color-ink: #f4efe6;
+  --color-ink-2: #cbc4b8;
+  --color-ink-3: #948d80;
+
+  --color-accent: #f08a3c;
+  --color-accent-2: #ffb26b;
+  --color-accent-ink: #1a0f05;
+
+  /* chart series (validated categorical order) */
+  --color-s1: #3987e5; /* blue    */
+  --color-s2: #d95926; /* orange  */
+  --color-s3: #199e70; /* aqua    */
+  --color-s4: #c98500; /* yellow  */
+  --color-s5: #d55181; /* magenta */
+  --color-s6: #008300; /* green   */
+  --color-s7: #9085e9; /* violet  */
+  --color-s8: #e66767; /* red     */
+
+  /* status (reserved, always paired with an icon and a label) */
+  --color-good: #2fb344;
+  --color-warn: #f5b82e;
+  --color-serious: #ec835a;
+  --color-crit: #e5484d;
+
+  --radius-card: 12px;
+  --radius-ctl: 8px;
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color-scheme: dark;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-2) transparent;
+}
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  letter-spacing: -0.01em;
+}
+p {
+  text-wrap: pretty;
+}
+
+/* readouts */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.eyebrow {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+}
+
+/* tonal card: separation by surface, not by outline */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  outline: 1px solid color-mix(in srgb, var(--color-line) 55%, transparent);
+  outline-offset: -1px;
+}
+.card-flat {
+  background: var(--color-surface-2);
+  border-radius: 10px;
+}
+
+/* well-log tick rule under section titles */
+.logrule {
+  height: 6px;
+  background:
+    repeating-linear-gradient(90deg, var(--color-line-2) 0 1px, transparent 1px 8px) bottom / 100% 4px no-repeat,
+    repeating-linear-gradient(90deg, var(--color-ink-3) 0 1px, transparent 1px 40px) bottom / 100% 6px no-repeat;
+  opacity: 0.55;
+}
+
+/* tables: light rules, condensed caps headers (padding stays with the utilities) */
+main table {
+  border-collapse: collapse;
+}
+main table thead th {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+  white-space: nowrap;
+}
+main table tbody tr {
+  transition: background-color 120ms ease;
+}
+main table tbody tr:hover {
+  background: color-mix(in srgb, var(--color-surface-3) 55%, transparent);
+}
+
+/* form controls */
+input[type="number"],
+input[type="text"],
+select {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-ctl);
+  color: var(--color-ink);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+input[type="number"]:hover,
+input[type="text"]:hover,
+select:hover {
+  border-color: var(--color-line-2);
+}
+select {
+  cursor: pointer;
+}
+input[type="range"] {
+  accent-color: var(--color-accent);
+  height: 18px;
+}
+
+/* focus: always visible, keyboard only */
+:where(a, button, input, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent-2);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* skeleton */
+.skel {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-surface-2);
+  border-radius: 8px;
+}
+.skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: skel 1.4s ease-in-out infinite;
+}
+@keyframes skel {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* entrances */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.rise {
+  animation: rise 260ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+.pop {
+  animation: pop 160ms ease-out both;
+}
+@keyframes flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.flow {
+  stroke-dasharray: 4 6;
+  animation: flow 1.2s linear infinite;
+}
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-good) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px transparent;
+  }
+}
+.live-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+.recharts-cartesian-grid line {
+  stroke: color-mix(in srgb, var(--color-line) 70%, transparent);
+}
+
+/* hero illustration */
+@keyframes rock {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+.rock {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: rock 3.4s ease-in-out infinite;
+}
+@keyframes glow {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.glow {
+  animation: glow 3.6s ease-in-out infinite;
+}
+.depthgrid {
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px);
+  background-size: 100% 36px;
+}
