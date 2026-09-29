@@ -3,5 +3,5 @@ services:
     name: sih26120-digital-twin
     runtime: docker
     plan: free
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./Dockerfile.render
     healthCheckPath: /api/health

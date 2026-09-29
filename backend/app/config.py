@@ -147,6 +147,8 @@ CALIBRATE_EVERY_SIM_DAYS = 2.0
 MQTT_HOST = os.getenv("MQTT_HOST", "")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 RANDOM_SEED = int(os.getenv("TWIN_SEED", "7"))
+# build the twin after the server starts accepting requests (for hosts whose health checks time out on slow startup)
+BACKGROUND_START = os.getenv("TWIN_BACKGROUND_START", "0") == "1"
 
 
 # --------------------------------------------------------------------------- provenance register

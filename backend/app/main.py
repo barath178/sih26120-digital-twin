@@ -50,6 +50,22 @@ async def broadcast(msg: dict):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    tasks: list[asyncio.Task] = []
+    if config.BACKGROUND_START:
+        # small hosts: accept connections (health checks) at once and build the twin behind them
+        tasks.append(asyncio.create_task(_start_twin(tasks)))
+    else:
+        await _start_twin(tasks)
+    yield
+    for t in tasks:
+        t.cancel()
+    if field is not None:
+        if getattr(field, "bus", None) is not None:
+            field.bus.close()
+        field.storage.close()
+
+
+async def _start_twin(tasks: list):
     global field
     loop = asyncio.get_running_loop()
     # models: load from disk, train any that are missing (first run only)
@@ -73,11 +89,7 @@ async def lifespan(app: FastAPI):
     field._recompute_schedule()
     field._evaluate_recommendations()
     log.info("twin ready: %d wells, bus=%s", len(field.wells), field.bus.status)
-    task = asyncio.create_task(field.run(broadcast))
-    yield
-    task.cancel()
-    field.bus.close()
-    field.storage.close()
+    tasks.append(asyncio.create_task(field.run(broadcast)))
 
 
 app = FastAPI(title="Baghewala CSS + SRP Digital Twin", version="1.0.0", lifespan=lifespan)

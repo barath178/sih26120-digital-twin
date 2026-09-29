@@ -21,3 +21,9 @@ Set the environment variable `VITE_BACKEND_URL=https://<your-backend-host>` (no 
 Without it the UI expects the API on the same origin.
 
 All data in the prototype is synthetic and labelled as such in the UI.
+
+## Render free tier
+`render.yaml` builds `Dockerfile.render`, a small image for 512 MB / 0.1 CPU hosts:
+no PyTorch (the dynacard CNN runs in numpy from `backend/models/dynacard_cnn.npz`, verified identical by
+`tests/test_dynacard_numpy.py`), and `TWIN_BACKGROUND_START=1` so `/api/health` answers while the twin boots.
+The free instance sleeps when idle; the first request after a pause takes about a minute.

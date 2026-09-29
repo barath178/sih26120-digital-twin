@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import math
+import os
 import time
 
 import numpy as np
@@ -24,7 +25,11 @@ SK_MODEL_PATH = config.MODELS_DIR / "dynacard_mlp.joblib"
 METRICS_PATH = config.MODELS_DIR / "dynacard_metrics.json"
 IMG = 64
 
+NPZ_PATH = config.MODELS_DIR / "dynacard_cnn.npz"
+
 try:
+    if os.getenv("DYNACARD_BACKEND", "").lower() == "numpy":
+        raise ImportError("numpy inference requested")
     import torch
     from torch import nn
 
@@ -118,6 +123,54 @@ if TORCH_OK:
             return self.head(self.features(x))
 
 
+    def export_npz(model: "CardCNN", path=NPZ_PATH):
+        """Save the trained CNN as plain arrays (batch-norm folded into the convs) for torch-free inference."""
+        f, h = model.features, model.head
+        out = {}
+        for i, (ci, bi) in enumerate(((0, 1), (4, 5), (8, 9), (12, None))):
+            w = f[ci].weight.detach().numpy().astype(np.float32)
+            b = f[ci].bias.detach().numpy().astype(np.float32)
+            if bi is not None:
+                bn = f[bi]
+                s = (bn.weight / torch.sqrt(bn.running_var + bn.eps)).detach().numpy()
+                w = w * s[:, None, None, None]
+                b = (b - bn.running_mean.detach().numpy()) * s + bn.bias.detach().numpy()
+            out[f"c{i}w"], out[f"c{i}b"] = w, b.astype(np.float32)
+        out["l0w"], out["l0b"] = h[2].weight.detach().numpy(), h[2].bias.detach().numpy()
+        out["l1w"], out["l1b"] = h[4].weight.detach().numpy(), h[4].bias.detach().numpy()
+        np.savez(path, **out)
+
+
+class NumpyCardCNN:
+    """Inference-only CardCNN in numpy (same weights), so deployments can run without PyTorch."""
+
+    def __init__(self, path=NPZ_PATH):
+        z = np.load(path)
+        self.p = {k: z[k].astype(np.float32) for k in z.files}
+
+    @staticmethod
+    def _conv(x, w, b):  # x (N,C,H,W), 3x3, padding 1
+        xp = np.pad(x, ((0, 0), (0, 0), (1, 1), (1, 1)))
+        cols = np.lib.stride_tricks.sliding_window_view(xp, (3, 3), axis=(2, 3))  # N,C,H,W,3,3
+        return np.einsum("nchwij,ocij->nohw", cols, w, optimize=True) + b[None, :, None, None]
+
+    @staticmethod
+    def _pool(x, k):
+        n, c, hh, ww = x.shape
+        return x.reshape(n, c, hh // k, k, ww // k, k)
+
+    def __call__(self, x):
+        p = self.p
+        for i in range(3):
+            x = np.maximum(self._conv(x, p[f"c{i}w"], p[f"c{i}b"]), 0)
+            x = self._pool(x, 2).max(axis=(3, 5))
+        x = np.maximum(self._conv(x, p["c3w"], p["c3b"]), 0)
+        x = self._pool(x, x.shape[2] // 4).mean(axis=(3, 5))  # adaptive avg pool to 4x4 (input is divisible)
+        x = x.reshape(len(x), -1)
+        x = np.maximum(x @ p["l0w"].T + p["l0b"], 0)
+        return x @ p["l1w"].T + p["l1b"]
+
+
 class DynacardClassifier:
     def __init__(self):
         self.model = None
@@ -162,6 +215,7 @@ class DynacardClassifier:
                 pred = model(torch.tensor(x[te, None])).argmax(1).numpy()
             self.model, self.kind = model, "cnn"
             torch.save(model.state_dict(), MODEL_PATH)
+            export_npz(model)
         else:  # pragma: no cover
             from sklearn.neural_network import MLPClassifier
             import joblib
@@ -195,6 +249,9 @@ class DynacardClassifier:
             model.eval()
             self.model, self.kind = model, "cnn"
             return True
+        if NPZ_PATH.exists():
+            self.model, self.kind = NumpyCardCNN(), "cnn-numpy"
+            return True
         if SK_MODEL_PATH.exists():  # pragma: no cover
             import joblib
 
@@ -214,6 +271,10 @@ class DynacardClassifier:
             with torch.no_grad():
                 logits = self.model(torch.tensor(images[:, None].astype(np.float32)))
                 return torch.softmax(logits, 1).numpy()
+        if self.kind == "cnn-numpy":
+            z = self.model(images[:, None].astype(np.float32))
+            z = np.exp(z - z.max(axis=1, keepdims=True))
+            return z / z.sum(axis=1, keepdims=True)
         return self.model.predict_proba(images.reshape(len(images), -1))  # pragma: no cover
 
 
