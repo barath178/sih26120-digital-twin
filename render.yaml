@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: sih26120-digital-twin
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
