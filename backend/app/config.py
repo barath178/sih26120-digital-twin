@@ -142,8 +142,10 @@ ECONOMICS = dict(
 # --------------------------------------------------------------------------- runtime
 SIM_HOURS_PER_TICK = float(os.getenv("SIM_HOURS_PER_TICK", "2.0"))
 TICK_SECONDS = float(os.getenv("TICK_SECONDS", "1.0"))
-CARD_EVERY_SIM_HOURS = 6.0
-CALIBRATE_EVERY_SIM_DAYS = 2.0
+CARD_EVERY_SIM_HOURS = float(os.getenv("CARD_EVERY_SIM_HOURS", "6.0"))
+CALIBRATE_EVERY_SIM_DAYS = max(1, int(float(os.getenv("CALIBRATE_EVERY_SIM_DAYS", "2"))))
+# pause the simulation clock while no dashboard is connected (saves CPU on small hosts)
+PAUSE_WHEN_IDLE = os.getenv("TWIN_PAUSE_WHEN_IDLE", "0") == "1"
 MQTT_HOST = os.getenv("MQTT_HOST", "")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 RANDOM_SEED = int(os.getenv("TWIN_SEED", "7"))

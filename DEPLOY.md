@@ -27,3 +27,5 @@ All data in the prototype is synthetic and labelled as such in the UI.
 no PyTorch (the dynacard CNN runs in numpy from `backend/models/dynacard_cnn.npz`, verified identical by
 `tests/test_dynacard_numpy.py`), and `TWIN_BACKGROUND_START=1` so `/api/health` answers while the twin boots.
 The free instance sleeps when idle; the first request after a pause takes about a minute.
+It also slows the simulation clock (1 sim-hour per 3 s), generates cards daily, recalibrates weekly and pauses the
+clock while no dashboard is connected (`TWIN_PAUSE_WHEN_IDLE=1`): about 4 % of one core with a viewer, ~0 % idle.

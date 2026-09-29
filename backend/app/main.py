@@ -78,6 +78,8 @@ async def _start_twin(tasks: list):
         log.info("generating synthetic datasets (first run) ...")
         await loop.run_in_executor(None, exports.generate)
     field = Field()
+    if config.PAUSE_WHEN_IDLE:
+        field.has_viewers = lambda: bool(clients)
     log.info("bootstrapping field history ...")
     await loop.run_in_executor(None, field.bootstrap, None)
     field.bus = make_bus(loop)

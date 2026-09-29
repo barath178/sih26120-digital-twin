@@ -164,6 +164,7 @@ class Field:
         self._ticks = 0
         self.tick_ms = 0.0
         self.ready = False
+        self.has_viewers = lambda: True   # main.py replaces this when TWIN_PAUSE_WHEN_IDLE=1
         self._pending_rows: list = []
         self._bootstrapping = False
         self._pending_resid: list = []
@@ -701,7 +702,7 @@ class Field:
         while True:
             t0 = loop.time()
             try:
-                if not self.paused and self.ready:
+                if not self.paused and self.ready and self.has_viewers():
                     tasks = self.tick()
                     if "cards" in tasks and (self._card_task is None or self._card_task.done()):
                         self._card_task = asyncio.create_task(self._generate_cards_async())
