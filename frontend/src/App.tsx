@@ -6,6 +6,7 @@ import { apiUrl, engineerName, post, setEngineerName } from "./api";
 import { Loading, Segmented, simDate } from "./components/ui";
 import Logo from "./components/Logo";
 import ErrorBoundary from "./components/ErrorBoundary";
+import HowItWorks from "./components/HowItWorks";
 import type { Snapshot } from "./types";
 
 // pages are split into their own chunks; the 3D scene (three.js) only loads with the well twin
@@ -121,7 +122,17 @@ export default function App() {
             <ErrorBoundary resetKey={routeKey}>
               <Suspense fallback={<Loading />}>
                 {!snap ? (
-                  <div className="space-y-4"><Loading label="Connecting to the twin" /><p className="text-center text-xs text-ink-3">Connecting to the twin. The backend trains its models on first start, which takes a few minutes.</p></div>
+                  <div className="space-y-5">
+                    <div>
+                      <h1 className="text-xl font-semibold">Digital twin for CSS + SRP optimisation · Baghewala heavy-oil field</h1>
+                      <p className="mt-1 text-sm text-ink-3">SIH26120 · Oil India Limited · one twin that couples steam injection, the reservoir, the wellbore and the sucker-rod pump, and recommends settings an engineer approves.</p>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-xs text-ink-2">
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-s4" aria-hidden />
+                      Connecting to the live twin… Live pages appear once the backend answers. If it is not running, start it locally with <code className="font-mono text-ink">start.ps1</code>.
+                    </div>
+                    <HowItWorks />
+                  </div>
                 ) : (
                   <div key={routeKey} className="rise">
                     {route.page === "home" ? <Home />
