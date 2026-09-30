@@ -8,6 +8,7 @@ import CardPlot from "../components/CardPlot";
 import TimeChart from "../components/TimeChart";
 import { AlertItem, RecCard } from "../components/RecCard";
 import { Button, C, ChartTip, DataLabel, EmptyState, ErrorBox, KV, Legend, Loading, Panel, PhaseBadge, Pill, Skeleton, Stat, Tabs, WellStatus, axisProps, fmt, inr, pct, useConfirm, useToast } from "../components/ui";
+import { DEMO } from "../demo/mock";
 import { go } from "../router";
 
 const WellScene3D = lazy(() => import("../components/WellScene3D"));
@@ -180,9 +181,9 @@ export default function WellTwin({ id }: { id: string }) {
           </Button>
           <Button variant="ghost" onClick={() => go({ page: "optimize", id })}><Gauge size={15} /> Optimise</Button>
           <Button variant="ghost" onClick={() => go({ page: "optimize", id, tab: "whatif" })}><Sliders size={15} /> What-if</Button>
-          <select defaultValue="" onChange={(e) => { inject(e.target.value); e.target.value = ""; }} className="h-9 px-2 text-xs text-ink-3" aria-label="Inject a demonstration fault">
+          {!DEMO && <select defaultValue="" onChange={(e) => { inject(e.target.value); e.target.value = ""; }} className="h-9 px-2 text-xs text-ink-3" aria-label="Inject a demonstration fault">
             <option value="">Demo: inject fault…</option><option value="rod_parted">Parted rods</option><option value="tv_leak">Pump (TV) leak</option><option value="clear">Clear faults</option>
-          </select>
+          </select>}
         </div>
       </div>
       {actionErr && <ErrorBox error={actionErr} />}

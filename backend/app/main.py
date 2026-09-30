@@ -23,7 +23,7 @@ from .ml.anomaly import detector
 from .ml.dynacard import classifier
 from .ml.forecaster import forecaster
 from .ml.risk import risk_model
-from . import dataio, exports, fleet
+from . import dataio, exports, fleet, whatif
 from .ml.surrogate import surrogate
 from .optimize import joint
 from .physics import coupling, fluid, reservoir, srp
@@ -180,10 +180,7 @@ def api_audit(limit: int = 200):
 # ----------------------------------------------------------------------------- wells
 
 
-def _design_dict(d: coupling.CycleDesign):
-    out = d.to_dict()
-    out["spm_schedule"] = [dict(day=round(fr * d.prod_days, 1), spm=s) for fr, s in zip(coupling.SPM_KNOT_FRACTIONS, d.spm_knots)]
-    return out
+_design_dict = whatif.design_dict
 
 
 @app.get("/api/wells/{wid}")
@@ -333,28 +330,15 @@ class SimBody(BaseModel):
 async def api_simulate(body: SimBody):
     f = F()
     w = well_or_404(body.well_id)
-    d = joint.design_from_payload(body.design.model_dump())
-    if d.pump_depth_m >= w.twin_p.depth_m:
-        raise HTTPException(400, f"pump must be set above mid-perforation depth ({w.twin_p.depth_m:.0f} m)")
-    for s in d.spm_knots:
-        if not (0.5 <= s <= 12):
-            raise HTTPException(400, "SPM must be between 0.5 and 12")
-    loop = asyncio.get_running_loop()
-    params, state, cur = replace(w.twin_p), w.twin.copy(), w.next_design or w.design
-
-    def run():
-        res = coupling.simulate_cycle(params, d, state0=state)
-        base = coupling.simulate_cycle(params, cur, state0=state) if body.compare_current else None
-        return res, base
-
-    res, base = await loop.run_in_executor(None, run)
-    out = dict(design=_design_dict(d), summary=res["summary"], series=res["series"])
-    if base:
-        out["current"] = dict(design=_design_dict(cur), summary=base["summary"], series=base["series"])
-        out["delta"] = joint.compare(base["summary"], res["summary"])
+    cur = w.next_design or w.design
+    try:
+        out = await asyncio.get_running_loop().run_in_executor(
+            None, lambda: whatif.simulate(replace(w.twin_p), w.twin.copy(), cur, body.design.model_dump(), body.compare_current))
+    except ValueError as e:
+        raise HTTPException(400, str(e))
     out["sim_time"] = f.sim_iso()
     out["scenario_id"] = f.storage.log_scenario(body.well_id, "what-if", dict(design=body.design.model_dump()),
-                                                dict(summary={k: v for k, v in res["summary"].items() if k != "constraints"}),
+                                                dict(summary={k: v for k, v in out["summary"].items() if k != "constraints"}),
                                                 config.MODEL_VERSION, config.DATA_MODE)
     return ok(out)
 

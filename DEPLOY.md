@@ -1,24 +1,32 @@
 # Deployment
 
-The app has two parts:
+## Online demo on Vercel (no backend needed)
+
+`frontend/vercel.json` builds `npm run build:demo` (`vite build --mode demo`).
+That build answers every API call from a recorded run of the real twin (`frontend/public/demo/`, made by
+`backend/scripts/record_demo.py`) and runs the what-if physics in the browser with Pyodide in a Web Worker
+(`src/demo/`). It is labelled "Recorded run" in the header.
+
+```
+cd backend && python -m scripts.record_demo     # re-record after changing the twin (about 6 minutes)
+cd ../frontend && vercel deploy --prod          # Vercel project root = frontend
+```
+
+What works online: every page, the replayed live stream (pause and speed controls), approve/reject/acknowledge,
+VFD on/off, workover scheduling, the optimiser for each well with the default limits and weights, the field steam
+plan at any budget from 60 to 120 %, the synthetic sample upload and replay, report and CSV downloads, and the
+what-if simulator with real physics. What needs the live twin: fault injection, optimiser runs with custom
+limits/weights, and uploading your own files.
+
+## Live twin with a separate backend
 
 | Part | Where | Why |
 |---|---|---|
 | React UI (`frontend/`) | Vercel | Static build |
-| FastAPI twin (`backend/`) | Render / Railway / Fly (Docker) | Needs WebSockets, torch/xgboost and background threads, which Vercel serverless cannot run |
+| FastAPI twin (`backend/`) | Render / Railway / Fly (Docker) | Needs WebSockets, xgboost and background threads, which Vercel serverless cannot run |
 
-## 1. Backend
-Deploy the root `Dockerfile` to a Docker host and note its public URL, e.g. `https://twin.onrender.com`.
-CORS is open (`*`).
-
-## 2. Frontend on Vercel
-```
-cd frontend
-npx vercel login
-npx vercel --prod          # Root Directory = frontend
-```
-Set the environment variable `VITE_BACKEND_URL=https://<your-backend-host>` (no trailing slash) in the Vercel project, then redeploy.
-Without it the UI expects the API on the same origin.
+Deploy the root `Dockerfile` to a Docker host (CORS is open), then build the UI with the normal `npm run build` and
+`VITE_BACKEND_URL=https://<your-backend-host>` (no trailing slash). Without it the UI expects the API on the same origin.
 
 All data in the prototype is synthetic and labelled as such in the UI.
 

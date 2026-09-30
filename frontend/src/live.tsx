@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Snapshot } from "./types";
 import { wsUrl } from "./api";
+import { DEMO, subscribe } from "./demo/mock";
 
 interface LiveState {
   snap: Snapshot | null;
@@ -15,6 +16,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
   const retry = useRef(0);
 
   useEffect(() => {
+    if (DEMO) return subscribe((snap) => setState({ snap, connected: true }), (ok) => setState((s) => ({ ...s, connected: ok })));
     let ws: WebSocket | null = null;
     let timer: number | undefined;
     let closed = false;

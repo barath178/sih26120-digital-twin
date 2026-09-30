@@ -6,6 +6,8 @@ import type { CycleSeries, CycleSummary, Design } from "../types";
 import TimeChart from "../components/TimeChart";
 import { Button, C, ChartTip, DataLabel, ErrorBox, Legend, Loading, Panel, axisProps, fmt, inr, pct } from "../components/ui";
 import { go } from "../router";
+import { DEMO } from "../demo/mock";
+import { physicsReady } from "../demo/pyodide";
 
 interface SimResp {
   design: Design; summary: CycleSummary; series: CycleSeries; scenario_id: string;
@@ -116,7 +118,7 @@ export default function WhatIf({ id }: { id: string }) {
           <h1 className="text-xl font-semibold">What-if simulator</h1>
           <select value={id} onChange={(e) => go({ page: "optimize", id: e.target.value, tab: "whatif" })} className="rounded-lg border border-line bg-surface px-2 py-1.5 text-sm font-semibold" aria-label="Select well">{WELLS.map((w) => <option key={w}>{w}</option>)}</select>
           <DataLabel kind="MODELLED" />
-          <span className="text-xs text-ink-3">{busy ? "Simulating…" : "Full coupled physics, whole-cycle trajectories; compare the current baseline with up to 3 scenarios"}</span>
+          <span className="text-xs text-ink-3">{busy ? (DEMO && !physicsReady() ? "Loading the physics engine in your browser (first time only, up to ~30 s)…" : "Simulating…") : "Full coupled physics, whole-cycle trajectories; compare the current baseline with up to 3 scenarios"}</span>
         </div>
         <div className="flex gap-2">
           <Button variant="ghost" onClick={() => { setScen([base]); setActive(0); }}><RotateCcw size={14} /> Reset</Button>

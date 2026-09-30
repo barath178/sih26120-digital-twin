@@ -22,7 +22,14 @@ The first run creates the environment, trains the ML models from physics simulat
 datasets (about 5 minutes). Later starts take about 15 s. `.\start.ps1 -Dev` runs the UI with hot reload on :5173.
 
 Manual commands: `cd backend`, then `python -m app.train` (models + `data/synthetic/*.csv`), `python -m app.exports`
-(datasets only), `python -m pytest -q` (89 tests). In `frontend/`: `npm run build` type-checks and builds the UI.
+(datasets only), `python -m pytest -q` (92 tests). In `frontend/`: `npm run build` type-checks and builds the UI.
+
+**Online demo (Vercel, no backend):** https://sih26120-digital-twin-lilac.vercel.app is a static build (`npm run build:demo`)
+that replays a recorded run of the real twin in the browser. Page data, optimiser runs, the field plan and the sample-data
+replay come from that recording; approvals, acknowledgements, VFD and scheduling update state in the browser; the what-if
+simulator runs the real physics (`backend/app/whatif.py`) in the browser with Pyodide, identical to the API to 1e-15.
+Fault injection, custom optimiser settings and your own data uploads need the live twin (`start.ps1`). Re-record with
+`cd backend && python -m scripts.record_demo` (writes `frontend/public/demo/`). See [DEPLOY.md](DEPLOY.md).
 
 **Troubleshooting:** if port 8000 is busy, stop the other process or pass another `--port` to uvicorn. If models are
 missing, run `python -m app.train`. `python -m app.train --force` retrains everything. Set `MQTT_HOST=<host>` to publish

@@ -1,7 +1,9 @@
 /** Backend origin. Empty (the default) means same origin, which is how the bundled app runs.
  *  Set VITE_BACKEND_URL at build time when the UI is hosted separately from the API (for example on Vercel). */
+import { DEMO, DemoError, demoGet, demoPost, demoPostForm, demoRawUrl } from "./demo/mock";
+
 const BASE = String(import.meta.env.VITE_BACKEND_URL ?? "").replace(/\/+$/, "");
-export const apiUrl = (path: string) => `${BASE}${path}`;
+export const apiUrl = (path: string) => (DEMO ? demoRawUrl(path) : `${BASE}${path}`);
 /** WebSocket URL of the live stream, derived from the same setting. */
 export function wsUrl(): string {
   if (BASE) return `${BASE.replace(/^http/, "ws")}/ws`;
@@ -32,11 +34,20 @@ async function handle<T>(res: Response): Promise<T> {
   return (type.includes("application/json") ? res.json() : res.text()) as Promise<T>;
 }
 
+/** In the static demo, requests are answered by the recorded run (src/demo/mock.ts). */
+function demo<T>(p: Promise<unknown>): Promise<T> {
+  return p.then((v) => v as T, (e: Error & { status?: number }) => {
+    throw new ApiError(e instanceof DemoError || e.status ? (e.status ?? 500) : 500, e.message);
+  });
+}
+
 export function get<T>(path: string): Promise<T> {
+  if (DEMO) return demo<T>(demoGet(path));
   return fetch(apiUrl(path)).then((r) => handle<T>(r));
 }
 
 export function post<T>(path: string, body?: unknown): Promise<T> {
+  if (DEMO) return demo<T>(demoPost(path, (body ?? {}) as Record<string, unknown>));
   return fetch(apiUrl(path), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -45,6 +56,7 @@ export function post<T>(path: string, body?: unknown): Promise<T> {
 }
 
 export function postForm<T>(path: string, form: FormData): Promise<T> {
+  if (DEMO) return demo<T>(demoPostForm(path, form));
   return fetch(apiUrl(path), { method: "POST", body: form }).then((r) => handle<T>(r));
 }
 

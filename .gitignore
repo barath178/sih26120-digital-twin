@@ -10,3 +10,4 @@ frontend/dist/
 .env.*
 .vercel/
 backend/*.db
+*.tsbuildinfo
