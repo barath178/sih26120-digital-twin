@@ -1,7 +1,6 @@
 import { useFetch } from "../live";
 import { get } from "../api";
 import { Loading, Panel, Pill } from "../components/ui";
-import HowItWorks from "../components/HowItWorks";
 
 interface Prov {
   data_mode: string;
@@ -25,11 +24,10 @@ const STATUS_COLOR: Record<string, string> = {
 
 export default function About() {
   const p = useFetch(() => get<Prov>("/api/provenance"), []);
-  if (!p.data) return <div className="space-y-5"><HowItWorks />{p.error ? null : <Loading />}</div>;
+  if (!p.data) return <Loading />;
   const d = p.data;
   return (
     <div className="space-y-5">
-      <HowItWorks />
       <div>
         <h1 className="text-xl font-semibold">About & assumptions</h1>
         <p className="text-sm text-ink-3">Data mode: <b className="text-ink">{d.data_mode}</b> · model version {d.model_version}</p>
